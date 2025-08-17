@@ -71,7 +71,20 @@ async def query_documents(request: QueryRequest):
             session_id=session_id
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        # Check for common API errors and provide better messages
+        if "credit balance is too low" in error_msg:
+            raise HTTPException(
+                status_code=402, 
+                detail="Anthropic API credit balance too low. Please add credits to your account."
+            )
+        elif "invalid_request_error" in error_msg:
+            raise HTTPException(
+                status_code=400,
+                detail=f"API request error: {error_msg}"
+            )
+        else:
+            raise HTTPException(status_code=500, detail=error_msg)
 
 @app.get("/api/courses", response_model=CourseStats)
 async def get_course_stats():
@@ -83,7 +96,20 @@ async def get_course_stats():
             course_titles=analytics["course_titles"]
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        # Check for common API errors and provide better messages
+        if "credit balance is too low" in error_msg:
+            raise HTTPException(
+                status_code=402, 
+                detail="Anthropic API credit balance too low. Please add credits to your account."
+            )
+        elif "invalid_request_error" in error_msg:
+            raise HTTPException(
+                status_code=400,
+                detail=f"API request error: {error_msg}"
+            )
+        else:
+            raise HTTPException(status_code=500, detail=error_msg)
 
 @app.on_event("startup")
 async def startup_event():
