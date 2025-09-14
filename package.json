@@ -1,5 +1,22 @@
 {
+  "name": "starting-codebase-frontend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Frontend code quality tools for RAG system",
+  "scripts": {
+    "format": "prettier --write \"frontend/**/*.{js,css,html}\"",
+    "format:check": "prettier --check \"frontend/**/*.{js,css,html}\"",
+    "lint": "eslint frontend/**/*.js",
+    "lint:fix": "eslint frontend/**/*.js --fix",
+    "quality:check": "npm run format:check && npm run lint",
+    "quality:fix": "npm run format && npm run lint:fix"
+  },
   "dependencies": {
     "@playwright/test": "^1.55.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "eslint": "^8.0.0",
+    "@eslint/js": "^9.0.0"
   }
 }

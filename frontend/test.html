@@ -1,83 +1,82 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple API Test</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Simple API Test</h1>
     <button onclick="testAPI()">Test API Connection</button>
     <div id="result"></div>
-    
+
     <script>
-        async function testAPI() {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = '<p>Testing...</p>';
-            
-            console.log('Starting API test...');
-            console.log('Current URL:', window.location.href);
-            console.log('Origin:', window.location.origin);
-            
-            const apiUrl = window.location.origin + '/api/courses';
-            console.log('Testing URL:', apiUrl);
-            
-            try {
-                console.log('Making fetch request...');
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                
-                console.log('Response received:', response);
-                console.log('Status:', response.status);
-                console.log('OK:', response.ok);
-                console.log('Headers:', [...response.headers.entries()]);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Error response:', errorText);
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
-                }
-                
-                const data = await response.json();
-                console.log('Data received:', data);
-                
-                resultDiv.innerHTML = `
+      async function testAPI() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '<p>Testing...</p>';
+
+        console.log('Starting API test...');
+        console.log('Current URL:', window.location.href);
+        console.log('Origin:', window.location.origin);
+
+        const apiUrl = window.location.origin + '/api/courses';
+        console.log('Testing URL:', apiUrl);
+
+        try {
+          console.log('Making fetch request...');
+          const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          console.log('Response received:', response);
+          console.log('Status:', response.status);
+          console.log('OK:', response.ok);
+          console.log('Headers:', [...response.headers.entries()]);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+          console.log('Data received:', data);
+
+          resultDiv.innerHTML = `
                     <h3>✅ Success!</h3>
                     <p><strong>Status:</strong> ${response.status}</p>
                     <p><strong>Total Courses:</strong> ${data.total_courses}</p>
                     <p><strong>Courses:</strong> ${data.course_titles.join(', ')}</p>
                 `;
-                
-            } catch (error) {
-                console.error('Test failed:', error);
-                console.error('Error type:', error.constructor.name);
-                console.error('Error message:', error.message);
-                
-                let errorType = 'Unknown Error';
-                if (error instanceof TypeError) {
-                    errorType = 'Network/CORS Error';
-                } else if (error instanceof SyntaxError) {
-                    errorType = 'JSON Parse Error';
-                }
-                
-                resultDiv.innerHTML = `
+        } catch (error) {
+          console.error('Test failed:', error);
+          console.error('Error type:', error.constructor.name);
+          console.error('Error message:', error.message);
+
+          let errorType = 'Unknown Error';
+          if (error instanceof TypeError) {
+            errorType = 'Network/CORS Error';
+          } else if (error instanceof SyntaxError) {
+            errorType = 'JSON Parse Error';
+          }
+
+          resultDiv.innerHTML = `
                     <h3>❌ Failed!</h3>
                     <p><strong>Error Type:</strong> ${errorType}</p>
                     <p><strong>Error:</strong> ${error.message}</p>
                     <p><strong>Check console for details</strong></p>
                 `;
-            }
         }
-        
-        // Test on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Test page loaded');
-            console.log('Window location:', window.location);
-        });
+      }
+
+      // Test on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('Test page loaded');
+        console.log('Window location:', window.location);
+      });
     </script>
-</body>
+  </body>
 </html>
