@@ -5,7 +5,7 @@ const API_URL = window.location.origin + '/api';
 let currentSessionId = null;
 
 // DOM elements
-let chatMessages, chatInput, sendButton, totalCourses, courseTitles, newChatButton;
+let chatMessages, chatInput, sendButton, totalCourses, courseTitles, newChatButton, themeToggle;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,9 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     totalCourses = document.getElementById('totalCourses');
     courseTitles = document.getElementById('courseTitles');
     newChatButton = document.getElementById('newChatButton');
+    themeToggle = document.getElementById('themeToggle');
     
     // Verify all elements exist
-    const elements = { chatMessages, chatInput, sendButton, totalCourses, courseTitles, newChatButton };
+    const elements = { chatMessages, chatInput, sendButton, totalCourses, courseTitles, newChatButton, themeToggle };
     for (const [name, element] of Object.entries(elements)) {
         if (!element) {
             console.error(`Missing DOM element: ${name}`);
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     setupEventListeners();
+    initializeTheme();
     createNewSession();
     loadCourseStats();
     
@@ -47,7 +49,18 @@ function setupEventListeners() {
     
     // New chat button
     newChatButton.addEventListener('click', clearCurrentChat);
-    
+
+    // Theme toggle button
+    themeToggle.addEventListener('click', toggleTheme);
+
+    // Keyboard accessibility for theme toggle
+    themeToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleTheme();
+        }
+    });
+
     // Suggested questions
     document.querySelectorAll('.suggested-item').forEach(button => {
         button.addEventListener('click', (e) => {
@@ -282,4 +295,35 @@ async function loadCourseStats() {
             courseTitles.innerHTML = '<span class="error">Failed to load courses</span>';
         }
     }
+}
+
+// Theme Management Functions
+function initializeTheme() {
+    // Check for saved theme preference or default to 'dark'
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    console.log('Theme initialized:', savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    console.log('Theme toggled from', currentTheme, 'to', newTheme);
+}
+
+function setTheme(theme) {
+    // Apply theme to document
+    document.documentElement.setAttribute('data-theme', theme);
+
+    // Save preference
+    localStorage.setItem('theme', theme);
+
+    // Update button aria-label for accessibility
+    if (themeToggle) {
+        const label = theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+        themeToggle.setAttribute('aria-label', label);
+    }
+
+    console.log('Theme set to:', theme);
 }
