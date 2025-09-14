@@ -1,19 +1,37 @@
 import warnings
 warnings.filterwarnings("ignore", message="resource_tracker: There appear to be.*")
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Union
 import os
+import time
 
 from config import config
 from rag_system import RAGSystem
 
 # Initialize FastAPI app
 app = FastAPI(title="Course Materials RAG System", root_path="")
+
+# Add request logging middleware for debugging
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = time.time()
+    print(f"🌐 Incoming request: {request.method} {request.url}")
+    print(f"📍 Headers: {dict(request.headers)}")
+    print(f"🔗 Client: {request.client}")
+    
+    response = await call_next(request)
+    
+    process_time = time.time() - start_time
+    print(f"✅ Response: {response.status_code} (took {process_time:.3f}s)")
+    print(f"📤 Response headers: {dict(response.headers)}")
+    print("---")
+    
+    return response
 
 # Add trusted host middleware for proxy
 app.add_middleware(
@@ -40,10 +58,19 @@ class QueryRequest(BaseModel):
     query: str
     session_id: Optional[str] = None
 
+class ClearSessionRequest(BaseModel):
+    """Request model for clearing a session"""
+    session_id: str
+
+class SourceItem(BaseModel):
+    """Source item that can have a text and optional link"""
+    text: str
+    link: Optional[str] = None
+
 class QueryResponse(BaseModel):
     """Response model for course queries"""
     answer: str
-    sources: List[str]
+    sources: List[Union[str, SourceItem]]
     session_id: str
 
 class CourseStats(BaseModel):
@@ -110,6 +137,15 @@ async def get_course_stats():
             )
         else:
             raise HTTPException(status_code=500, detail=error_msg)
+
+@app.post("/api/clear-session")
+async def clear_session(request: ClearSessionRequest):
+    """Clear a conversation session"""
+    try:
+        rag_system.session_manager.clear_session(request.session_id)
+        return {"success": True, "message": "Session cleared successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.on_event("startup")
 async def startup_event():

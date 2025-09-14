@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Chatbot Debug</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Additional debug styles */
+        .debug-panel {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .debug-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+        }
+        .error-message {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .debug-message {
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🤖 Course Materials Assistant (Debug Mode)</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Total Courses:</span>
+                    <span class="stat-value" id="totalCourses">Loading...</span>
+                </div>
+                <button id="newChatButton" class="new-chat-btn">New Chat</button>
+            </div>
+        </header>
+        
+        <!-- Debug Panel -->
+        <div class="debug-panel">
+            <h3>Debug Information</h3>
+            <div>
+                <strong>API URL:</strong> <span id="apiUrl">/api</span><br>
+                <strong>Current Session:</strong> <span id="currentSession">None</span><br>
+                <strong>Last Request:</strong> <span id="lastRequest">None</span><br>
+                <strong>Connection Status:</strong> <span id="connectionStatus">Testing...</span>
+            </div>
+            <br>
+            <div>
+                <button onclick="window.debugChat.testApiConnectivity()">Test API</button>
+                <button onclick="window.debugChat.loadCourseStats()">Reload Stats</button>
+                <button onclick="clearDebugLog()">Clear Log</button>
+            </div>
+            <div class="debug-log" id="debugLog">Debug messages will appear here...\n</div>
+        </div>
+        
+        <main class="main">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Messages will be added here -->
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="chatInput" 
+                            placeholder="Ask about courses, lessons, or specific content..."
+                            maxlength="1000"
+                        >
+                        <button id="sendButton" class="send-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="suggested-questions">
+                    <h3>Suggested Questions</h3>
+                    <div class="suggested-items">
+                        <button class="suggested-item" data-question="What courses are available?">
+                            📚 What courses are available?
+                        </button>
+                        <button class="suggested-item" data-question="Tell me about computer use with Anthropic">
+                            🖥️ Computer use with Anthropic
+                        </button>
+                        <button class="suggested-item" data-question="What is prompt compression?">
+                            🗜️ What is prompt compression?
+                        </button>
+                        <button class="suggested-item" data-question="How does retrieval work with Chroma?">
+                            🔍 Retrieval with Chroma
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="course-list">
+                    <h3>Available Courses</h3>
+                    <div id="courseTitles" class="course-titles">
+                        Loading courses...
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Load marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Load the debug script -->
+    <script>
+        // Override console.log and console.error to show in debug panel
+        const debugLogElement = document.getElementById('debugLog');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function clearDebugLog() {
+            debugLogElement.textContent = 'Debug log cleared...\n';
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg).join(' ');
+            debugLogElement.textContent += '[LOG] ' + new Date().toLocaleTimeString() + ' - ' + message + '\n';
+            debugLogElement.scrollTop = debugLogElement.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg).join(' ');
+            debugLogElement.innerHTML += '<span class="error-message">[ERROR] ' + new Date().toLocaleTimeString() + ' - ' + message + '</span>\n';
+            debugLogElement.scrollTop = debugLogElement.scrollHeight;
+        };
+        
+        // Update debug info
+        function updateDebugInfo() {
+            document.getElementById('apiUrl').textContent = '/api';
+            document.getElementById('currentSession').textContent = window.debugChat?.currentSessionId || 'None';
+        }
+        
+        setInterval(updateDebugInfo, 1000);
+    </script>
+    <script src="debug_script.js"></script>
+</body>
+</html>

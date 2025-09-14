@@ -78,3 +78,4 @@ Simple HTML/CSS/JavaScript interface in `frontend/` directory served as static f
 - use uv to run Python files
 - always use uv to run the server do not use pip directly
 - use uv to manage all the dependencies
+- do not run the server with ./run.sh, I will do it myself manually when needed
