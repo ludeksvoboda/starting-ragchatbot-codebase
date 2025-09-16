@@ -76,14 +76,13 @@ body {
 /* Header */
 header {
   background: var(--surface);
-  border-bottom: 1px solid var(--border-color);
   padding: 1rem 2rem;
   transition: var(--theme-transition);
 }
 
 .header-content {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
